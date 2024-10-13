@@ -1,0 +1,66 @@
+.features {
+  padding: 100px 40px;
+  text-align: center;
+}
+
+.features-grid {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap; /* Allows wrapping on smaller screens */
+}
+
+.feature-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.feature-card {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  text-align: left;
+  width: 300px; /* Set fixed width for uniformity */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.feature-card img {
+  width: 100%;
+  height: 200px; /* Set fixed height for consistency */
+  object-fit: cover; /* Ensures the image scales properly */
+  margin-bottom: 20px;
+  border-radius: 8px;
+}
+
+.feature-card h3 {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.feature-card p {
+  font-size: 1rem;
+  color: #555;
+  text-align: center; /* Center align the text for a cleaner look */
+}
+
+/* Hover effect for the feature card */
+.feature-card:hover {
+  transform: scale(1.05);
+  transition: transform 0.3s ease;
+}
+
+/* Ensure responsiveness for smaller screens */
+@media (max-width: 768px) {
+  .features-grid {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .feature-card {
+    width: 100%; /* Make feature cards take full width on smaller screens */
+  }
+}

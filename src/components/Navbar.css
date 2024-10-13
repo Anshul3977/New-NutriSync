@@ -1,0 +1,121 @@
+/* Navbar container */
+nav {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  background-color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 60px; /* Adjusted padding */
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+}
+
+/* NutriSync Logo styling */
+.navbar-logo {
+  font-size: 24px;
+  font-weight: bold;
+  font-family: 'Poppins', sans-serif;
+  color: black !important; /* Set logo text to black */
+  margin-left: 50px; /* Adjusted margin for better alignment */
+}
+
+.navbar-logo a {
+  color: black !important; /* Ensure the link itself is black */
+  text-decoration: none;
+}
+
+/* Navbar links */
+.navbar-links {
+  list-style: none;
+  display: flex;
+  justify-content: center; /* Center the links */
+  flex-grow: 1;
+  gap: 30px; /* Adjusted space between the links */
+  margin-left: 50px; /* Space between logo and links */
+}
+
+.navbar-links a {
+  text-decoration: none;
+  color: #555;
+  font-size: 16px;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.navbar-links a:hover {
+  color: black;
+}
+
+/* Welcome message styling */
+.welcome-message {
+  font-size: 16px;
+  font-weight: bold;
+  color: black;
+  margin-right: 20px; /* Spacing before the Logout button */
+}
+
+/* Logout button styling */
+.logout-btn {
+  padding: 8px 16px;
+  border: 2px solid black;
+  border-radius: 4px;
+  background-color: white;
+  font-weight: bold;
+  color: black;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.logout-btn:hover {
+  background-color: black;
+  color: white;
+}
+
+/* Contact button */
+.navbar-contact-btn {
+  padding: 8px 16px;
+  border: 2px solid #007bff;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 15px;
+  color: #007bff;
+  text-decoration: none;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  margin-left: auto; /* Pushes the Contact button to the right */
+}
+
+/* Hover effect for Contact button */
+.navbar-contact-btn:hover {
+  background-color: rgba(0, 0, 0, 0.1);  /* Slightly darkens */
+  color: #007bff;  /* Keeps the text color */
+  border-color: #007bff; /* Keeps the original border color */
+}
+
+/* Responsive navbar for smaller screens */
+@media (max-width: 768px) {
+  nav {
+    flex-direction: column;
+    padding: 10px;
+  }
+
+  .navbar-logo {
+    margin-left: 0; /* Center logo for mobile */
+  }
+
+  .navbar-links {
+    flex-direction: column;
+    gap: 15px;
+    margin-left: 0; /* Reset margin for mobile */
+  }
+
+  .navbar-contact-btn {
+    margin-top: 10px;
+    margin-right: 0; /* Center contact button for mobile */
+  }
+
+  .logout-btn {
+    margin-top: 10px; /* Add spacing for logout on mobile */
+  }
+}

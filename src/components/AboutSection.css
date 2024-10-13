@@ -1,0 +1,50 @@
+.about-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 50px;
+    background-color: #f9f9f9;
+  }
+  
+  .about-content {
+    max-width: 50%;
+  }
+  
+  .about-content h4 {
+    color: #007bff;
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+  }
+  
+  .about-content h2 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  
+  .about-content p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+  
+  .about-link {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  .about-link:hover {
+    text-decoration: underline;
+  }
+  
+  .about-image {
+    max-width: 40%;
+  }
+  
+  .about-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+  }
