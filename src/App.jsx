@@ -13,6 +13,7 @@ import Dashboard from './pages/Dashboard';
 import About from './pages/About';
 import Services from './pages/Services';
 import Contact from './pages/Contact';
+import RecipeForm from './components/MultiStepForm/RecipeForm'; // Use RecipeForm for recipe recommendations
 
 // Layout component to conditionally display Navbar
 const Layout = ({ children }) => {
@@ -49,7 +50,8 @@ const App = () => {
             <Route path="/contact" element={<Contact />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard" element={<Dashboard />} /> 
+            <Route path="/recipe-recommendations" element={<RecipeForm />} /> {/* Recipe Recommendations page */}
           </Routes>
         </Layout>
       </Router>

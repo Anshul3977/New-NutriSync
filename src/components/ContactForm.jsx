@@ -79,7 +79,7 @@ const ContactForm = () => {
       <div className="contact-info">
         <div className="location">
           <h3>Location</h3>
-          <p>Jalgaon, MH IN</p>
+          <p>MH,IN</p>
         </div>
 
         <div className="hours">
