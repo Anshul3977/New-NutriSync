@@ -36,8 +36,12 @@ const MainForm = ({ onSubmit }) => {
 
   // Function to handle form submission at the last step
   const handleFormSubmit = async () => {
+    console.log('Submitting form with data:', formData); // Log form data for debugging
+
     try {
       const token = localStorage.getItem('token');
+      console.log('Token:', token); // Check if token is present
+
       const response = await fetch('http://localhost:5002/complete-profile', {
         method: 'POST',
         headers: {
@@ -48,6 +52,8 @@ const MainForm = ({ onSubmit }) => {
       });
 
       if (response.ok) {
+        const data = await response.json();
+        console.log('Server response:', data); // Log server response
         onSubmit(); // Notify the parent component (Dashboard) that form is submitted
       } else {
         console.error('Error submitting profile:', await response.json());

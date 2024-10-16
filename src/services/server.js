@@ -70,89 +70,21 @@ const authMiddleware = (req, res, next) => {
   }
 };
 
-// Signup Route
-app.post('/signup', [
-  check('email').isEmail().withMessage('Valid email is required'),
-  check('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
-], async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-
-  const { name, email, password } = req.body;
-
-  try {
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ error: 'User already exists' });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ name, email, password: hashedPassword });
-    await newUser.save();
-
-    res.status(201).json({ message: 'User created successfully' });
-  } catch (error) {
-    res.status(500).json({ error: 'Error registering user', details: error.message });
-  }
-});
-
-// Login Route
-app.post('/login', async (req, res) => {
-  const { email, password } = req.body;
-
-  try {
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ error: 'User not found' });
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ error: 'Invalid credentials' });
-    }
-
-    const token = jwt.sign({ id: user._id }, jwtSecret, { expiresIn: '1h' });
-    res.json({ token });
-  } catch (error) {
-    res.status(500).json({ error: 'Error logging in', details: error.message });
-  }
-});
-
-// Google Login Route (Signup/Login through Google)
-app.post('/google-login', async (req, res) => {
-  const { token } = req.body;
-
-  try {
-    const ticket = await client.verifyIdToken({
-      idToken: token,
-      audience: googleClientId,
-    });
-
-    const { name, email, sub: googleId } = ticket.getPayload();
-
-    let user = await User.findOne({ email });
-    if (!user) {
-      user = new User({ name, email, googleId });
-      await user.save();
-    }
-
-    const jwtToken = jwt.sign({ id: user._id }, jwtSecret, { expiresIn: '1h' });
-    res.json({ token: jwtToken });
-  } catch (error) {
-    res.status(500).json({ error: 'Google login failed', details: error.message });
-  }
-});
-
 // Route to check if profile is completed
 app.get('/profile', authMiddleware, async (req, res) => {
   try {
     const profile = await Profile.findOne({ userId: req.user.id });
     const isProfileComplete = !!profile;
 
+    if (profile) {
+      console.log('Profile found:', profile); // Add logging to see if the profile exists
+    } else {
+      console.log('No profile found for user:', req.user.id); // Add logging for debugging
+    }
+
     res.json({ isProfileComplete });
   } catch (error) {
+    console.error('Error fetching profile:', error);
     res.status(500).json({ error: 'Error fetching profile' });
   }
 });
@@ -177,6 +109,7 @@ app.post('/complete-profile', authMiddleware, async (req, res) => {
       existingProfile.nutritionalGoals = nutritionalGoals;
 
       await existingProfile.save();
+      console.log('Profile updated successfully:', existingProfile);
       return res.status(200).json({ message: 'Profile updated successfully' });
     } else {
       const newProfile = new Profile({
@@ -194,9 +127,11 @@ app.post('/complete-profile', authMiddleware, async (req, res) => {
       });
 
       await newProfile.save();
+      console.log('Profile created successfully:', newProfile);
       return res.status(201).json({ message: 'Profile created successfully' });
     }
   } catch (error) {
+    console.error('Error saving profile:', error);
     res.status(500).json({ error: 'Error saving profile' });
   }
 });
