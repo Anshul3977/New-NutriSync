@@ -13,12 +13,24 @@ nav {
 }
 
 /* NutriSync Logo styling */
-.navbar-logo {
+/* .navbar-logo {
+  height: 80px;
   font-size: 24px;
   font-weight: bold;
   font-family: 'Poppins', sans-serif;
   color: black !important; /* Set logo text to black */
-  margin-left: 50px; /* Adjusted margin for better alignment */
+  /* margin-left: 50px; /* Adjusted margin for better alignment */
+/*} */
+.navbar-logo {
+  height: 60px; /* Increase the height for a bigger logo */
+  display: flex;
+  align-items: center;
+}
+
+.navbar-logo-image {
+  height: 60px; /* Keep the height at 100% of the navbar-logo */
+  object-fit: contain; /* Ensure the logo is not distorted */
+  padding: 5px; /* Add some padding to make it stand out */
 }
 
 .navbar-logo a {

@@ -1,0 +1,120 @@
+.meal-plan-overview {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: 'Arial', sans-serif;
+  }
+  
+  .meal-plan-overview h2 {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  .meal-plan-overview h3 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    color: #555;
+  }
+  
+  .meal-plan-day {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+  }
+  
+  .meal-plan-day h4 {
+    font-size: 1.25rem;
+    color: #007bff;
+    margin-bottom: 10px;
+  }
+  
+  .meal-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .meal-item:last-child {
+    border-bottom: none;
+  }
+  
+  .meal-item h5 {
+    margin: 0;
+    font-size: 1rem;
+    color: #333;
+  }
+  
+  .meal-item p {
+    margin: 0;
+    color: #888;
+    font-size: 0.9rem;
+  }
+  
+  .meal-item a {
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  .meal-item a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Button styling - make buttons smaller and more aligned */
+  button {
+    display: inline-block;
+    background-color: #007bff;
+    color: white;
+    padding: 8px 12px; /* Adjust padding for smaller button size */
+    font-size: 0.9rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #0056b3;
+  }
+  
+  input[type="text"] {
+    width: 100%;
+    padding: 8px;
+    font-size: 1rem;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  /* Adjust flexbox for proper alignment */
+  .meal-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .meal-item h5 {
+    flex-grow: 2;
+    padding-right: 20px;
+  }
+  
+  .meal-item p {
+    flex-grow: 1;
+    text-align: right;
+    padding-right: 10px; /* Space between time and button */
+  }
+  
+  .meal-item a {
+    flex-grow: 0;
+    margin-left: 10px;
+  }
+  
+  button {
+    margin-left: 15px; /* Add margin between buttons and text */
+    padding: 8px 12px; /* Smaller padding for buttons */
+    min-width: 130px;  /* Ensure consistent button width */
+  }

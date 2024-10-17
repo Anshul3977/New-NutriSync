@@ -7,7 +7,7 @@ const RecipeForm = ({ onSubmit }) => {
     carbohydrates: 'medium',
     fat: 'medium',
     fiber: 'medium',
-    ingredients: ''
+    ingredients: '',
   });
 
   // Log the onSubmit prop to verify it's being passed

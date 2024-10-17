@@ -17,7 +17,7 @@ const Login = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     setLoading(true);
-    fetch('http://localhost:5002/login', {
+    fetch('http://localhost:5004/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -44,7 +44,7 @@ const Login = () => {
   const handleGoogleSuccess = async (response) => {
     const token = response.credential;
     try {
-      const res = await fetch('http://localhost:5002/google-login', {
+      const res = await fetch('http://localhost:5004/google-login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

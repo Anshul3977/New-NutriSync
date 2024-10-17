@@ -49,3 +49,14 @@
   .feature-box:hover {
     transform: scale(1.05);
   }
+  .nutritional-info {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #f1f1f1;
+    border-radius: 5px;
+  }
+  
+  .nutritional-info ul {
+    list-style-type: none;
+    padding: 0;
+  }

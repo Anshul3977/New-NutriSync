@@ -3,56 +3,146 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import cors from 'cors';
-import { OAuth2Client } from 'google-auth-library';
-import { check, validationResult } from 'express-validator';
+import { OAuth2Client } from 'google-auth-library'; // Google OAuth library
 
 const app = express();
 
-// JWT Secret and Google Client ID
-const jwtSecret = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MGE5OTY5NDlmZmMzYjRmNjQ4NDA4NSIsImlhdCI6MTcyOTA3NjkzOSwiZXhwIjoxNzI5MDgwNTM5fQ.rEFRcp6W2Wi07ur8Y8oesa79tM1XfieegaFBy6cDdpY'; // Replace with your actual JWT secret
-const googleClientId = '657336769262-3b23jnh2mfan1d92l5q9qkot7fjl5sqn.apps.googleusercontent.com'; // Replace with your Google Client ID
-
 // Google OAuth2 Client
-const client = new OAuth2Client(googleClientId);
+const client = new OAuth2Client('657336769262-3b23jnh2mfan1d92l5q9qkot7fjl5sqn.apps.googleusercontent.com'); // Your Google Client ID
 
 // Middleware
 app.use(express.json());
-app.use(cors({ origin: ['http://localhost:5173'], credentials: true }));
+
+// Apply CORS middleware to handle preflight requests and allow your frontend origin
+app.use(cors({
+  origin: ['http://localhost:5174'], // Your frontend origin
+  credentials: true
+}));
+
+// Handle preflight requests
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'http://localhost:5174'); // Frontend origin
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+  res.header('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200); // Handle preflight requests
+  }
+
+  next();
+});
 
 // MongoDB connection
 mongoose.connect('mongodb://127.0.0.1:27017/nutrisyncDatabase')
   .then(() => console.log('MongoDB connected successfully'))
-  .catch((error) => {
-    console.error('MongoDB connection error:', error);
-    process.exit(1); // Exit if connection fails
-  });
+  .catch((error) => console.error('MongoDB connection error:', error));
 
 // User Schema and Model
 const UserSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, unique: true, required: true },
   password: { type: String },
-  googleId: { type: String },
+  googleId: { type: String }
 });
 
 const User = mongoose.model('User', UserSchema);
 
-// Profile Schema and Model
-const ProfileSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  dietaryPreferences: { type: String },
-  allergies: { type: String },
-  weight: { type: Number },
-  height: { type: Number },
-  bmi: { type: Number },
-  activityLevel: { type: String },
-  healthConditions: { type: String },
-  calories: { type: Number },
-  macronutrients: { type: String },
-  nutritionalGoals: { type: String },
+// Signup Route (Normal signup with email and password)
+app.post('/signup', async (req, res) => {
+  const { name, email, password } = req.body;
+
+  try {
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ error: 'User already exists' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = new User({ name, email, password: hashedPassword });
+
+    await newUser.save();
+    res.status(201).json({ message: 'User created successfully' });
+  } catch (error) {
+    console.error('Signup Error:', error);
+    res.status(500).json({ error: 'Error registering user', details: error.message });
+  }
 });
 
-const Profile = mongoose.model('Profile', ProfileSchema);
+// Login Route (Normal login with email and password)
+app.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ error: 'User not found' });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ error: 'Invalid credentials' });
+    }
+
+    const token = jwt.sign({ id: user._id }, 'jwt_secret_key', { expiresIn: '1h' });
+    res.json({ token });
+  } catch (error) {
+    console.error('Login Error:', error);
+    res.status(500).json({ error: 'Error logging in', details: error.message });
+  }
+});
+
+// Google Signup Route
+app.post('/google-signup', async (req, res) => {
+  const { token } = req.body;
+
+  try {
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: '657336769262-3b23jnh2mfan1d92l5q9qkot7fjl5sqn.apps.googleusercontent.com' // Google Client ID
+    });
+
+    const { name, email, sub: googleId } = ticket.getPayload();
+
+    let user = await User.findOne({ email });
+    if (!user) {
+      user = new User({ name, email, googleId });
+      await user.save();
+    }
+
+    const jwtToken = jwt.sign({ id: user._id }, 'jwt_secret_key', { expiresIn: '1h' });
+    res.json({ token: jwtToken });
+  } catch (error) {
+    console.error('Google Signup Error:', error);
+    res.status(500).json({ error: 'Google signup failed', details: error.message });
+  }
+});
+
+// Google Login Route
+app.post('/google-login', async (req, res) => {
+  const { token } = req.body;
+
+  try {
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: '657336769262-3b23jnh2mfan1d92l5q9qkot7fjl5sqn.apps.googleusercontent.com' // Google Client ID
+    });
+
+    const payload = ticket.getPayload();
+    const { email, sub: googleId } = payload;
+
+    let user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ error: 'User not found' });
+    }
+
+    const jwtToken = jwt.sign({ id: user._id }, 'jwt_secret_key', { expiresIn: '1h' });
+    res.json({ token: jwtToken });
+  } catch (error) {
+    console.error('Google Login Error:', error);
+    res.status(500).json({ error: 'Google login failed', details: error.message });
+  }
+});
 
 // Middleware for protected routes
 const authMiddleware = (req, res, next) => {
@@ -62,7 +152,7 @@ const authMiddleware = (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, jwtSecret);
+    const decoded = jwt.verify(token, 'jwt_secret_key');
     req.user = decoded;
     next();
   } catch (error) {
@@ -70,74 +160,30 @@ const authMiddleware = (req, res, next) => {
   }
 };
 
-// Route to check if profile is completed
+// Profile Route (to return profile data)
 app.get('/profile', authMiddleware, async (req, res) => {
   try {
-    const profile = await Profile.findOne({ userId: req.user.id });
-    const isProfileComplete = !!profile;
-
-    if (profile) {
-      console.log('Profile found:', profile); // Add logging to see if the profile exists
-    } else {
-      console.log('No profile found for user:', req.user.id); // Add logging for debugging
-    }
-
-    res.json({ isProfileComplete });
+    // Simulating profile check
+    res.json({ isProfileComplete: true, message: "Profile loaded successfully" });
   } catch (error) {
     console.error('Error fetching profile:', error);
     res.status(500).json({ error: 'Error fetching profile' });
   }
 });
 
-// Route to create or update profile
-app.post('/complete-profile', authMiddleware, async (req, res) => {
-  const { dietaryPreferences, allergies, weight, height, bmi, activityLevel, healthConditions, calories, macronutrients, nutritionalGoals } = req.body;
+// Protected route example
+app.get('/dashboard', authMiddleware, (req, res) => {
+  res.json({ message: `Welcome to the dashboard, user ${req.user.id}` });
+});
 
-  try {
-    const existingProfile = await Profile.findOne({ userId: req.user.id });
-
-    if (existingProfile) {
-      existingProfile.dietaryPreferences = dietaryPreferences;
-      existingProfile.allergies = allergies;
-      existingProfile.weight = weight;
-      existingProfile.height = height;
-      existingProfile.bmi = bmi;
-      existingProfile.activityLevel = activityLevel;
-      existingProfile.healthConditions = healthConditions;
-      existingProfile.calories = calories;
-      existingProfile.macronutrients = macronutrients;
-      existingProfile.nutritionalGoals = nutritionalGoals;
-
-      await existingProfile.save();
-      console.log('Profile updated successfully:', existingProfile);
-      return res.status(200).json({ message: 'Profile updated successfully' });
-    } else {
-      const newProfile = new Profile({
-        userId: req.user.id,
-        dietaryPreferences,
-        allergies,
-        weight,
-        height,
-        bmi,
-        activityLevel,
-        healthConditions,
-        calories,
-        macronutrients,
-        nutritionalGoals,
-      });
-
-      await newProfile.save();
-      console.log('Profile created successfully:', newProfile);
-      return res.status(201).json({ message: 'Profile created successfully' });
-    }
-  } catch (error) {
-    console.error('Error saving profile:', error);
-    res.status(500).json({ error: 'Error saving profile' });
-  }
+// Handle the Google OAuth callback (if needed)
+app.get('/auth/google/callback', (req, res) => {
+  // Redirect the user to the dashboard or any frontend route you want
+  res.redirect('/dashboard');
 });
 
 // Start the server
-const PORT = process.env.PORT || 5002;
+const PORT = process.env.PORT || 5004; // Changed port to avoid conflict
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

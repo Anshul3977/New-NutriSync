@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import './Navbar.css';
+import logo from '../assets/images/cover_preview_rev_1.png'; // Ensure this path is correct
 
 const Navbar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -61,7 +62,15 @@ const Navbar = () => {
   return (
     <nav className="navbar">
       <div className="navbar-logo">
-        <a href="/" onClick={handleHomeClick}>NUTRISYNC</a>
+        <a href="/" onClick={handleHomeClick}>
+          {/* Use the image logo with a fallback to the text if the logo fails to load */}
+          <img 
+            src={logo} 
+            alt="NutriSync Logo" 
+            style={{ width: '120px', height: 'auto' }} 
+            onError={(e) => { e.target.style.display = 'none'; e.target.parentNode.innerHTML = 'NUTRISYNC'; }}
+          />
+        </a>
       </div>
       <ul className="navbar-links">
         <li><a href="/" onClick={handleHomeClick}>Home</a></li>

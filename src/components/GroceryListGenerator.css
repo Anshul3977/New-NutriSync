@@ -1,0 +1,26 @@
+.grocery-list-generator {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: 'Arial', sans-serif;
+  }
+  
+  .grocery-list-generator h2 {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  .grocery-list-generator ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .grocery-list-generator li {
+    background-color: #f9f9f9;
+    padding: 10px;
+    margin-bottom: 5px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }

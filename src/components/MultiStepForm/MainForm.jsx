@@ -42,7 +42,7 @@ const MainForm = ({ onSubmit }) => {
       const token = localStorage.getItem('token');
       console.log('Token:', token); // Check if token is present
 
-      const response = await fetch('http://localhost:5002/complete-profile', {
+      const response = await fetch('http://localhost:5003/complete-profile', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

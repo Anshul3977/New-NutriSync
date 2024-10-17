@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import Navbar from './components/Navbar';
@@ -13,13 +13,15 @@ import Dashboard from './pages/Dashboard';
 import About from './pages/About';
 import Services from './pages/Services';
 import Contact from './pages/Contact';
-import RecipeForm from './components/MultiStepForm/RecipeForm'; // Use RecipeForm for recipe recommendations
+import RecipeForm from './components/MultiStepForm/RecipeForm';
+import MealPlanOverview from './components/MealPlanOverview'; 
+import GroceryListGenerator from './components/GroceryListGenerator'; 
+import NutritionalTracking from './components/NutritionalTracking'; 
+import GoalsTracker from './components/GoalsTracker'; 
 
 // Layout component to conditionally display Navbar
 const Layout = ({ children }) => {
   const location = useLocation();
-
-  // Hide Navbar for Login and Signup routes
   const hideNavbarRoutes = ['/login', '/signup'];
 
   return (
@@ -31,6 +33,8 @@ const Layout = ({ children }) => {
 };
 
 const App = () => {
+  const [mealPlan, setMealPlan] = useState(null); // State to store the meal plan
+
   return (
     <GoogleOAuthProvider clientId="657336769262-3b23jnh2mfan1d92l5q9qkot7fjl5sqn.apps.googleusercontent.com">
       <Router>
@@ -46,12 +50,17 @@ const App = () => {
               </>
             } />
             <Route path="/about" element={<About />} />
-            <Route path="/services" element={<FeatureSection />} /> {/* Services points to features */}
+            <Route path="/services" element={<FeatureSection />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/dashboard" element={<Dashboard />} /> 
-            <Route path="/recipe-recommendations" element={<RecipeForm />} /> {/* Recipe Recommendations page */}
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/recipe-recommendations" element={<RecipeForm />} />
+            {/* Pass the setMealPlan function and mealPlan state */}
+            <Route path="/meal-planning" element={<MealPlanOverview setMealPlan={setMealPlan} />} /> 
+            <Route path="/grocery-list" element={<GroceryListGenerator mealPlan={mealPlan} />} /> 
+            <Route path="/nutritional-tracking" element={<NutritionalTracking />} />
+            <Route path="/health-goals" element={<GoalsTracker />} />
           </Routes>
         </Layout>
       </Router>
