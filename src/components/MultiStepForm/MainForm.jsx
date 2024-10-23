@@ -5,7 +5,7 @@ import GoalsStep from './GoalsStep';
 import './MultiStepForm.css';
 
 const MainForm = ({ onSubmit }) => {
-  const [step, setStep] = useState(1); // Track the current step
+  const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     dietaryPreferences: '',
     allergies: '',
@@ -16,33 +16,26 @@ const MainForm = ({ onSubmit }) => {
     healthConditions: '',
     calories: '',
     macronutrients: '',
-    nutritionalGoals: ''
+    nutritionalGoals: '',
   });
 
   // Function to handle going to the next step
-  const nextStep = () => {
-    setStep(step + 1);
-  };
-
+  const nextStep = () => setStep(step + 1);
   // Function to handle going to the previous step
-  const prevStep = () => {
-    setStep(step - 1);
-  };
+  const prevStep = () => setStep(step - 1);
 
   // Function to handle form field changes
   const handleChange = (input) => (e) => {
     setFormData({ ...formData, [input]: e.target.value });
   };
 
-  // Function to handle form submission at the last step
+  // Function to handle form submission
   const handleFormSubmit = async () => {
-    console.log('Submitting form with data:', formData); // Log form data for debugging
+    console.log('Submitting form with data:', formData);
 
     try {
       const token = localStorage.getItem('token');
-      console.log('Token:', token); // Check if token is present
-
-      const response = await fetch('http://localhost:5003/complete-profile', {
+      const response = await fetch('http://localhost:5002/api/save-profile', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -53,8 +46,8 @@ const MainForm = ({ onSubmit }) => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('Server response:', data); // Log server response
-        onSubmit(); // Notify the parent component (Dashboard) that form is submitted
+        console.log('Server response:', data);
+        onSubmit(); // Notify parent component (Dashboard) that form is submitted
       } else {
         console.error('Error submitting profile:', await response.json());
       }
@@ -63,34 +56,14 @@ const MainForm = ({ onSubmit }) => {
     }
   };
 
-  // Rendering different steps based on the current step
+  // Render form steps based on the current step
   switch (step) {
     case 1:
-      return (
-        <ProfileStep
-          nextStep={nextStep}
-          handleChange={handleChange}
-          formData={formData}
-        />
-      );
+      return <ProfileStep nextStep={nextStep} handleChange={handleChange} formData={formData} />;
     case 2:
-      return (
-        <HealthStep
-          nextStep={nextStep}
-          prevStep={prevStep}
-          handleChange={handleChange}
-          formData={formData}
-        />
-      );
+      return <HealthStep nextStep={nextStep} prevStep={prevStep} handleChange={handleChange} formData={formData} />;
     case 3:
-      return (
-        <GoalsStep
-          prevStep={prevStep}
-          handleChange={handleChange}
-          formData={formData}
-          handleSubmit={handleFormSubmit} // Pass form submit function to the last step
-        />
-      );
+      return <GoalsStep prevStep={prevStep} handleChange={handleChange} formData={formData} handleSubmit={handleFormSubmit} />;
     default:
       return <h2>Form Submitted</h2>;
   }
