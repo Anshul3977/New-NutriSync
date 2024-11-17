@@ -1,0 +1,17 @@
+/* src/components/ProgressCharts.css */
+.progress-charts-container {
+    margin-top: 40px;
+  }
+  
+  .progress-charts-container h3 {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  
+  .chart-section {
+    margin-bottom: 50px;
+  }
+  
+  .chart-section h4 {
+    margin-bottom: 15px;
+  }

@@ -15,32 +15,67 @@ const Dashboard = () => {
 
       if (!token) {
         navigate('/login');
-      } else {
-        try {
-          const response = await fetch('http://localhost:5002/api/get-profile', {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-            },
-          });
+        return;
+      }
 
-          if (response.ok) {
-            const data = await response.json();
-            setProfile(data);
-          } else {
-            console.error('Error fetching profile');
-          }
-          setLoading(false);
-        } catch (err) {
-          console.error('Error:', err);
+      try {
+        const response = await fetch('http://localhost:5002/api/get-profile', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setProfile(data);
+        } else {
+          console.error('Error fetching profile');
           localStorage.removeItem('token');
           navigate('/login');
         }
+      } catch (err) {
+        console.error('Error:', err);
+        localStorage.removeItem('token');
+        navigate('/login');
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchProfile();
   }, [navigate]);
+
+  const handleProfileUpdate = () => {
+    setLoading(true);
+    setProfile(null);
+    // Re-fetch the profile after successful form submission
+    const fetchProfile = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      try {
+        const response = await fetch('http://localhost:5002/api/get-profile', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setProfile(data);
+        } else {
+          console.error('Error fetching profile');
+        }
+      } catch (err) {
+        console.error('Error:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProfile();
+  };
 
   if (loading) return <div>Loading...</div>;
 
@@ -48,10 +83,10 @@ const Dashboard = () => {
     <div className="dashboard">
       <h1>Dashboard</h1>
       {!profile ? (
-        <MainForm />
+        <MainForm onSubmit={handleProfileUpdate} />
       ) : (
         <div className="profile-info">
-          <p>Dietary Preferences: {profile.dietaryPreferences}</p>
+          {/* <p>Dietary Preferences: {profile.dietaryPreferences}</p>
           <p>Allergies: {profile.allergies}</p>
           <p>Weight: {profile.weight}</p>
           <p>Height: {profile.height}</p>
@@ -60,7 +95,7 @@ const Dashboard = () => {
           <p>Health Conditions: {profile.healthConditions}</p>
           <p>Calories: {profile.calories}</p>
           <p>Macronutrients: {profile.macronutrients}</p>
-          <p>Nutritional Goals: {profile.nutritionalGoals}</p>
+          <p>Nutritional Goals: {profile.nutritionalGoals}</p> */}
 
           <div className="feature-boxes-container">
             <FeatureBox title="Personalized Meal Planning" description="Receive customized meal plans tailored to your dietary preferences." image="src/assets/images/pexels-alex-gonzo-1518705084-27101539.jpg" route="/meal-planning" />

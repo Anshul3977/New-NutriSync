@@ -1,0 +1,60 @@
+/* src/components/GoalSettingForm.css */
+.goal-setting-form-container {
+    background-color: #ffffff;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .goal-setting-form-container h3 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .goal-setting-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .form-section {
+    background-color: #f7f7f7;
+    padding: 15px;
+    border-radius: 8px;
+  }
+  
+  .form-section h4 {
+    margin-bottom: 15px;
+  }
+  
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+  }
+  
+  .form-group label {
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  
+  .form-group input {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+  
+  .btn-submit {
+    align-self: center;
+    background-color: #007BFF;
+    color: #ffffff;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .btn-submit:hover {
+    background-color: #0056b3;
+  }

@@ -18,6 +18,7 @@ import MealPlanOverview from './components/MealPlanOverview';
 import GroceryListGenerator from './components/GroceryListGenerator'; 
 import NutritionalTracking from './components/NutritionalTracking'; 
 import GoalsTracker from './components/GoalsTracker'; 
+import RecipeDetails from './components/RecipeDetails'; // Import the new component
 
 // Layout component to conditionally display Navbar
 const Layout = ({ children }) => {
@@ -56,7 +57,7 @@ const App = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/recipe-recommendations" element={<RecipeForm />} />
-            {/* Pass the setMealPlan function and mealPlan state */}
+            <Route path="/recipe/:id" element={<RecipeDetails />} /> {/* New Route */}
             <Route path="/meal-planning" element={<MealPlanOverview setMealPlan={setMealPlan} />} /> 
             <Route path="/grocery-list" element={<GroceryListGenerator mealPlan={mealPlan} />} /> 
             <Route path="/nutritional-tracking" element={<NutritionalTracking />} />

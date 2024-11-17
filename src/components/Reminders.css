@@ -1,0 +1,21 @@
+/* src/components/Reminders.css */
+.reminders-container {
+    margin-top: 40px;
+    background-color: #fff3e0;
+    padding: 20px;
+    border-radius: 10px;
+  }
+  
+  .reminders-container h3 {
+    margin-bottom: 15px;
+  }
+  
+  .reminders-container ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .reminders-container li {
+    margin-bottom: 10px;
+    font-size: 1.1em;
+  }

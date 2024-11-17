@@ -1,0 +1,43 @@
+/* src/components/NutrientDashboard.css */
+.nutrient-dashboard-container {
+    margin-top: 40px;
+  }
+  
+  .nutrient-dashboard-container h3 {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  
+  .nutrient-card-grid {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  
+  .nutrient-card {
+    flex: 1;
+    min-width: 150px;
+    background-color: #f1f8e9;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+  }
+  
+  .nutrient-card h4 {
+    margin-bottom: 10px;
+  }
+  
+  .progress-bar {
+    background-color: #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+    height: 20px;
+    margin: 15px 0;
+  }
+  
+  .progress {
+    background-color: #66bb6a;
+    height: 100%;
+    transition: width 0.3s ease-in-out;
+  }

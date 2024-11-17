@@ -3,14 +3,12 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import cors from 'cors';
-import { OAuth2Client } from 'google-auth-library';
 
 // Initialize Express app
 const app = express();
 
-// JWT Secret and Google OAuth2 Client
-const jwtSecret = 'your_jwt_secret_key'; // Replace with your actual secret
-const client = new OAuth2Client('657336769262-3b23jnh2mfan1d92l5q9qkot7fjl5sqn.apps.googleusercontent.com');
+// JWT Secret
+const jwtSecret = 'f216ee95ddd98602405d64601dfaa28d9b74593159750d95de212d76fb6a76beb79b239594d9c543d0b052a389151336fea635547ac0d3a42c4d5137f936d109';
 
 // Middleware
 app.use(express.json());
@@ -26,7 +24,6 @@ const UserSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, unique: true, required: true },
   password: { type: String },
-  googleId: { type: String }
 });
 
 const User = mongoose.model('User', UserSchema);
@@ -50,19 +47,22 @@ const Profile = mongoose.model('Profile', ProfileSchema);
 
 // Middleware for protected routes
 const authMiddleware = (req, res, next) => {
-  const token = req.header('Authorization')?.split(' ')[1];
-  if (!token) return res.status(401).json({ error: 'No token provided' });
+  const authHeader = req.header('Authorization');
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'No token provided' });
+  }
+
+  const token = authHeader.split(' ')[1];
 
   try {
     const decoded = jwt.verify(token, jwtSecret);
-    req.user = decoded;
+    req.user = decoded; // Attach the decoded user data to the request object
     next();
   } catch (error) {
-    return res.status(401).json({ error: 'Invalid token' });
+    console.error('Token verification error:', error.message);
+    return res.status(401).json({ error: 'Invalid or expired token' });
   }
 };
-
-// Routes
 
 // Signup Route
 app.post('/signup', async (req, res) => {
@@ -78,7 +78,7 @@ app.post('/signup', async (req, res) => {
 
     res.status(201).json({ message: 'User created successfully' });
   } catch (error) {
-    console.error('Signup Error:', error);
+    console.error('Signup Error:', error.message);
     res.status(500).json({ error: 'Error registering user', details: error.message });
   }
 });
@@ -97,12 +97,12 @@ app.post('/login', async (req, res) => {
     const token = jwt.sign({ id: user._id }, jwtSecret, { expiresIn: '1h' });
     res.json({ token });
   } catch (error) {
-    console.error('Login Error:', error);
+    console.error('Login Error:', error.message);
     res.status(500).json({ error: 'Error logging in', details: error.message });
   }
 });
 
-// Save or Update Profile
+// Save or Update Profile Route
 app.post('/api/save-profile', authMiddleware, async (req, res) => {
   const { dietaryPreferences, allergies, weight, height, bmi, activityLevel, healthConditions, calories, macronutrients, nutritionalGoals } = req.body;
 
@@ -121,12 +121,12 @@ app.post('/api/save-profile', authMiddleware, async (req, res) => {
       return res.status(201).json({ message: 'Profile created successfully' });
     }
   } catch (error) {
-    console.error('Error saving profile:', error);
+    console.error('Error saving profile:', error.message);
     res.status(500).json({ error: 'Error saving profile' });
   }
 });
 
-// Fetch Profile
+// Fetch Profile Route
 app.get('/api/get-profile', authMiddleware, async (req, res) => {
   try {
     const profile = await Profile.findOne({ userId: req.user.id });
@@ -134,7 +134,7 @@ app.get('/api/get-profile', authMiddleware, async (req, res) => {
 
     res.json(profile);
   } catch (error) {
-    console.error('Error fetching profile:', error);
+    console.error('Error fetching profile:', error.message);
     res.status(500).json({ error: 'Error fetching profile' });
   }
 });

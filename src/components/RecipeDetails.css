@@ -1,0 +1,42 @@
+/* RecipeDetails.css */
+
+.recipe-card {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+    overflow: hidden;
+  }
+  
+  .recipe-image {
+    height: 400px;
+    object-fit: cover;
+  }
+  
+  .recipe-title {
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .recipe-section-title {
+    margin-top: 30px;
+    margin-bottom: 10px;
+    font-weight: bold;
+  }
+  
+  .recipe-description,
+  .recipe-instructions {
+    line-height: 1.8;
+    color: #333;
+    text-align: justify;
+  }
+  
+  @media (max-width: 600px) {
+    .recipe-image {
+      height: 250px;
+    }
+  
+    .recipe-title {
+      font-size: 1.8rem;
+    }
+  }
+  

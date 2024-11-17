@@ -28,6 +28,7 @@
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.27.0",
     "react-scroll": "^1.9.0",
+    "recharts": "^2.13.3",
     "swiper": "^11.1.14"
   },
   "devDependencies": {

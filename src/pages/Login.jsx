@@ -17,6 +17,7 @@ const Login = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     setLoading(true);
+
     fetch('http://localhost:5002/login', {
       method: 'POST',
       headers: {
@@ -28,9 +29,10 @@ const Login = () => {
       .then((data) => {
         setLoading(false);
         if (data.token) {
-          localStorage.setItem('token', data.token);
-          localStorage.setItem('user', JSON.stringify({ email: formData.email })); // Store user email
-          navigate('/dashboard');
+          console.log('Token received:', data.token); // Debugging: Ensure token is received
+          localStorage.setItem('token', data.token); // Store the token
+          localStorage.setItem('user', JSON.stringify({ email: formData.email })); // Optional: Store user email
+          navigate('/dashboard'); // Redirect to dashboard
         } else {
           setErrorMessage('Invalid credentials');
         }
@@ -39,29 +41,6 @@ const Login = () => {
         setLoading(false);
         setErrorMessage('Something went wrong. Please try again.');
       });
-  };
-
-  const handleGoogleSuccess = async (response) => {
-    const token = response.credential;
-    try {
-      const res = await fetch('http://localhost:5002/google-login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ token }),
-      });
-      const data = await res.json();
-      if (data.token) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify({ email: data.email })); // Store Google user email
-        navigate('/dashboard');
-      } else {
-        setErrorMessage('Google login failed');
-      }
-    } catch {
-      setErrorMessage('Google login failed');
-    }
   };
 
   return (
@@ -89,10 +68,6 @@ const Login = () => {
           {loading ? 'Logging in...' : 'Login'}
         </button>
         {errorMessage && <p className="error-message">{errorMessage}</p>}
-        <GoogleLogin
-          onSuccess={handleGoogleSuccess}
-          onError={() => setErrorMessage('Google login failed')}
-        />
         <p>
           Don't have an account? <Link to="/signup">Sign Up</Link>
         </p>

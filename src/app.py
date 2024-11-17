@@ -1,102 +1,88 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import pandas as pd
-import numpy as np
-from sklearn.neighbors import NearestNeighbors
-from sklearn.preprocessing import StandardScaler
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.neighbors import NearestNeighbors
+from scipy.sparse import hstack
 
+# Initialize Flask app
 app = Flask(__name__)
-CORS(app)
+CORS(app)  # Enable CORS for all routes
 
 # Load the dataset
-file_path = 'recipe_final(1).csv'
-recipe_df = pd.read_csv(file_path)
+data = pd.read_csv("cuisine_updated.csv")
 
-# Macronutrient mapping based on levels (high, medium, low)
-macronutrient_mapping = {
-    'protein': {'high': (25, 30), 'medium': (15, 20), 'low': (0, 10)},
-    'carbohydrates': {'high': (50, 75), 'medium': (30, 45), 'low': (0, 20)},
-    'fat': {'high': (20, 30), 'medium': (10, 15), 'low': (0, 5)},
-    'fiber': {'high': (10, 15), 'medium': (5, 10), 'low': (0, 5)}
-}
+# Preprocess the data
+data['diet_lower'] = data['diet'].str.lower()
 
-# Function to map macronutrient input levels to numerical values
-def map_macronutrient_input(nutrient_type, level):
-    low, high = macronutrient_mapping[nutrient_type][level]
-    return (low + high) / 2  # Average value of the range
+# Fit encoders and vectorizers
+diet_encoder = OneHotEncoder()
+diet_encoded = diet_encoder.fit_transform(data[['diet_lower']])
 
-# Preprocess ingredients using TF-IDF
-vectorizer = TfidfVectorizer()
-X_ingredients = vectorizer.fit_transform(recipe_df['ingredients_list'])
+tfidf_vectorizer = TfidfVectorizer()
+ingredients_encoded = tfidf_vectorizer.fit_transform(data['cleaned_ingredients'])
 
-# Normalize numerical features (like calories, fat, etc.)
-scaler = StandardScaler()
-X_numerical = scaler.fit_transform(recipe_df[['calories', 'fat', 'carbohydrates', 'protein', 'cholesterol', 'sodium', 'fiber']])
+# Combine features
+features = hstack([diet_encoded, ingredients_encoded])
 
-# Combine normalized numerical features and processed ingredients
-X_combined = np.hstack([X_numerical, X_ingredients.toarray()])
+# Train the KNN model
+knn = NearestNeighbors(n_neighbors=6, metric='cosine')
+knn.fit(features)
 
-# Train a K-Nearest Neighbors (KNN) model
-knn = NearestNeighbors(n_neighbors=3, metric='euclidean')
-knn.fit(X_combined)
+# Function to find similar recipes
+def find_similar_recipes(input_diet, input_ingredients, top_k=5):
+    input_diet = input_diet.lower()
 
+    # Encode input diet
+    input_diet_encoded = diet_encoder.transform([[input_diet]])
+
+    # Encode input ingredients
+    input_ingredients_encoded = tfidf_vectorizer.transform([input_ingredients])
+
+    # Combine diet and ingredients features
+    input_features = hstack([input_diet_encoded, input_ingredients_encoded])
+
+    # Find nearest neighbors
+    distances, indices = knn.kneighbors(input_features, n_neighbors=top_k)
+
+    # Retrieve top K similar recipes
+    similar_recipes = data.iloc[indices[0]]
+    return similar_recipes
+
+# Define the Flask route for recipe recommendations
 @app.route('/recommend', methods=['POST'])
 def recommend():
-    data = request.get_json()
-    
-    protein_level = data.get('protein')
-    carbs_level = data.get('carbohydrates')
-    fat_level = data.get('fat')
-    fiber_level = data.get('fiber')
-    ingredients = data.get('ingredients')
+    request_data = request.get_json()
+    input_diet = request_data.get('diet')
+    input_ingredients = request_data.get('ingredients')
 
-    # Map macronutrient inputs
-    input_macronutrients = {
-        'protein': map_macronutrient_input('protein', protein_level),
-        'carbohydrates': map_macronutrient_input('carbohydrates', carbs_level),
-        'fat': map_macronutrient_input('fat', fat_level),
-        'fiber': map_macronutrient_input('fiber', fiber_level)
-    }
+    if not input_diet or not input_ingredients:
+        return jsonify({"error": "Please provide both 'diet' and 'ingredients' fields"}), 400
 
-    # Default input values for numerical features
-    input_numerical = [
-        200,  # Default 200 calories
-        input_macronutrients['fat'],
-        input_macronutrients['carbohydrates'],
-        input_macronutrients['protein'],
-        50,  # Default cholesterol value (50mg)
-        500,  # Default sodium value (500mg)
-        input_macronutrients['fiber']
-    ]
+    try:
+        similar_recipes = find_similar_recipes(input_diet, input_ingredients, top_k=5)
+        
+        # Prepare the response
+        recipe_list = []
+        for _, recipe in similar_recipes.iterrows():
+            recipe_data = {
+                'recipe_name': recipe.get('name', 'Unknown'),
+                'diet': recipe.get('diet', 'N/A'),
+                'cuisine': recipe.get('cuisine', 'N/A'),
+                'prep_time': recipe.get('prep_time', 'N/A'),
+                'description': recipe.get('description', 'N/A'),
+                'course': recipe.get('course', 'N/A'),  # Include course
+                'instructions': recipe.get('instructions', 'N/A'),  # Include instructions
+                'likes': recipe.get('likes', 'N/A'),  # Assuming you have 'likes' in your dataset
+                'image_url': recipe.get('image_url', 'N/A')
+            }
+            recipe_list.append(recipe_data)
 
-    # Normalize and combine the input
-    input_features_scaled = scaler.transform([input_numerical])
-    input_ingredients_transformed = vectorizer.transform([ingredients])
-    input_combined = np.hstack([input_features_scaled, input_ingredients_transformed.toarray()])
+        return jsonify(recipe_list)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
-    # Get the nearest recipe recommendations
-    distances, indices = knn.kneighbors(input_combined)
-    recommendations = recipe_df.iloc[indices[0]]
-
-    # Prepare the recommendations in a structured format, including nutritional data
-    recipe_list = []
-    for _, recipe in recommendations.iterrows():
-        recipe_data = {
-            'recipe_name': recipe['recipe_name'],
-            'ingredients_list': recipe['ingredients_list'],
-            'image_url': recipe['image_url'],
-            'calories': recipe['calories'],  # Include calories
-            'fat': recipe['fat'],  # Include fat
-            'carbohydrates': recipe['carbohydrates'],  # Include carbohydrates
-            'protein': recipe['protein'],  # Include protein
-            'cholesterol': recipe['cholesterol'],  # Include cholesterol
-            'sodium': recipe['sodium'],  # Include sodium
-            'fiber': recipe['fiber']  # Include fiber
-        }
-        recipe_list.append(recipe_data)
-
-    return jsonify(recipe_list)
-
+# Run the Flask app
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5002)

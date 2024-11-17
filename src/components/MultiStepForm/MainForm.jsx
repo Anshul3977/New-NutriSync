@@ -3,6 +3,7 @@ import ProfileStep from './ProfileStep';
 import HealthStep from './HealthStep';
 import GoalsStep from './GoalsStep';
 import './MultiStepForm.css';
+import { useNavigate } from 'react-router-dom';
 
 const MainForm = ({ onSubmit }) => {
   const [step, setStep] = useState(1);
@@ -18,11 +19,7 @@ const MainForm = ({ onSubmit }) => {
     macronutrients: '',
     nutritionalGoals: '',
   });
-
-  // Function to handle going to the next step
-  const nextStep = () => setStep(step + 1);
-  // Function to handle going to the previous step
-  const prevStep = () => setStep(step - 1);
+  const navigate = useNavigate();
 
   // Function to handle form field changes
   const handleChange = (input) => (e) => {
@@ -35,6 +32,14 @@ const MainForm = ({ onSubmit }) => {
 
     try {
       const token = localStorage.getItem('token');
+      console.log('Token from localStorage:', token); // Debugging
+
+      if (!token) {
+        console.error('No token found in local storage');
+        navigate('/login'); // Redirect to login if token is missing
+        return;
+      }
+
       const response = await fetch('http://localhost:5002/api/save-profile', {
         method: 'POST',
         headers: {
@@ -47,9 +52,20 @@ const MainForm = ({ onSubmit }) => {
       if (response.ok) {
         const data = await response.json();
         console.log('Server response:', data);
-        onSubmit(); // Notify parent component (Dashboard) that form is submitted
+        if (typeof onSubmit === 'function') {
+          onSubmit(); // Notify parent component (Dashboard) that form is submitted
+        } else {
+          console.error('onSubmit is not a function');
+        }
       } else {
-        console.error('Error submitting profile:', await response.json());
+        const errorData = await response.json();
+        console.error('Error submitting profile:', errorData);
+
+        if (response.status === 401) {
+          console.error('Token is invalid or expired');
+          localStorage.removeItem('token'); // Remove invalid token
+          navigate('/login'); // Redirect to login
+        }
       }
     } catch (err) {
       console.error('Error submitting profile:', err);
@@ -59,11 +75,11 @@ const MainForm = ({ onSubmit }) => {
   // Render form steps based on the current step
   switch (step) {
     case 1:
-      return <ProfileStep nextStep={nextStep} handleChange={handleChange} formData={formData} />;
+      return <ProfileStep nextStep={() => setStep(2)} handleChange={handleChange} formData={formData} />;
     case 2:
-      return <HealthStep nextStep={nextStep} prevStep={prevStep} handleChange={handleChange} formData={formData} />;
+      return <HealthStep nextStep={() => setStep(3)} prevStep={() => setStep(1)} handleChange={handleChange} formData={formData} />;
     case 3:
-      return <GoalsStep prevStep={prevStep} handleChange={handleChange} formData={formData} handleSubmit={handleFormSubmit} />;
+      return <GoalsStep prevStep={() => setStep(2)} handleChange={handleChange} formData={formData} handleSubmit={handleFormSubmit} />;
     default:
       return <h2>Form Submitted</h2>;
   }
